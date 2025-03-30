@@ -1,0 +1,46 @@
+project:
+  name: "Parking Occupancy Predictor"
+  version: "0.1.0"
+  description: "MLOps-aligned pipeline for Arlington parking occupancy forecasting"
+
+logging:
+  level: "INFO"
+  log_dir: "logs"
+
+data:
+  transactions:
+    raw_dir: "data/raw"
+    months:
+      - {year: 2025, month: 7}
+      - {year: 2025, month: 8}
+      - {year: 2025, month: 9}
+      - {year: 2025, month: 10}
+    force_download: false
+
+features:
+  processed_dir: "data/processed"
+  hourly_output: "parking_hourly_occupancy_2025-07_2025-10.csv"
+
+model:
+  artifacts_dir: "models/occupancy"
+  test_size: 0.15
+  val_size: 0.15
+  params:
+    objective: "poisson"
+    metric: "rmse"
+    learning_rate: 0.05
+    num_leaves: 63
+    feature_fraction: 0.8
+    bagging_fraction: 0.8
+    bagging_freq: 5
+    min_data_in_leaf: 20
+    force_col_wise: true
+    seed: 2025
+
+app:
+  risk_model_dir: "models/parking_risk_model"
+  recent_citations_path: "data/processed/parking_citations_clean.csv"
+  violation_datetime_column: "ISSUE_DATETIME"
+  violation_desc_column: "VIOLATION_DESC"
+  fine_amount_column: "FINE_AMOUNT"
+  violation_code_column: "VIOLATION_CODE"
