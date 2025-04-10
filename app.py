@@ -79,3 +79,37 @@ def _format_hour_label(hour: int) -> str:
     suffix = "AM" if hour < 12 else "PM"
     value = hour if hour <= 12 else hour - 12
     return f"{value} {suffix}"
+
+
+def _build_feature_frame(street: str, month: int, street_categories: Iterable[str]) -> pd.DataFrame:
+    rows: List[dict] = []
+    for day in range(7):
+        for hour in HOURS:
+            rows.append(
+                {
+                    "street": street,
+                    "day_of_week": day,
+                    "hour_of_day": hour,
+                    "month": month,
+                    "is_weekend": int(day >= 5),
+                    "hour_sin": np.sin(2 * np.pi * hour / 24),
+                    "hour_cos": np.cos(2 * np.pi * hour / 24),
+                }
+            )
+    feature_frame = pd.DataFrame(rows, columns=DEFAULT_FEATURES)
+    feature_frame["street"] = pd.Categorical(feature_frame["street"], categories=street_categories)
+    return feature_frame
+
+
+def _predict_heatmap(
+    booster: lgb.Booster,
+    street: str,
+    months: Iterable[int],
+    street_categories: Iterable[str],
+) -> np.ndarray:
+    predictions: List[np.ndarray] = []
+    for month in months:
+        features = _build_feature_frame(street, int(month), street_categories)
+        preds = booster.predict(features, num_iteration=booster.best_iteration)
+        predictions.append(preds.reshape(7, len(HOURS)))
+    return np.mean(predictions, axis=0)
