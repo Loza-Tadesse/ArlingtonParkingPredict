@@ -113,3 +113,15 @@ def _predict_heatmap(
         preds = booster.predict(features, num_iteration=booster.best_iteration)
         predictions.append(preds.reshape(7, len(HOURS)))
     return np.mean(predictions, axis=0)
+
+
+def _render_heatmap(heatmap: np.ndarray, hour_labels: List[str]) -> None:
+    heat_df = pd.DataFrame(heatmap, index=_day_labels(), columns=hour_labels)
+    fig = px.imshow(
+        heat_df,
+        aspect="auto",
+        color_continuous_scale=["#FFE5B4", "#FF8C00", "#8B0000"],
+        labels={"x": "Hour of Day", "y": "Day of Week", "color": "Predicted Occupancy"},
+    )
+    fig.update_layout(margin={"l": 0, "r": 0, "t": 40, "b": 0})
+    st.plotly_chart(fig, use_container_width=True)
