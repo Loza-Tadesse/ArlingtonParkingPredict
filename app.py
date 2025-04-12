@@ -125,3 +125,23 @@ def _render_heatmap(heatmap: np.ndarray, hour_labels: List[str]) -> None:
     )
     fig.update_layout(margin={"l": 0, "r": 0, "t": 40, "b": 0})
     st.plotly_chart(fig, use_container_width=True)
+
+
+def main() -> None:
+    cfg = _load_config()
+    hourly_path, model_path = _resolve_paths(cfg)
+
+    hourly_frame = _load_hourly_frame(hourly_path)
+    booster = _load_model(model_path)
+
+    street_categories = pd.Categorical(hourly_frame["street"]).categories
+    streets = sorted(street_categories.tolist())
+    months_available = sorted(hourly_frame["month"].unique())
+
+    if not streets:
+        st.warning("No streets available in the dataset.")
+        st.stop()
+
+    if not months_available:
+        st.warning("No months available in the dataset to generate forecasts.")
+        st.stop()
