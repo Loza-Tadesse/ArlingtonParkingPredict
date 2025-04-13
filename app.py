@@ -145,3 +145,23 @@ def main() -> None:
     if not months_available:
         st.warning("No months available in the dataset to generate forecasts.")
         st.stop()
+
+    st.markdown(
+        """
+        <div style="text-align: center;">
+            <h1 style="margin-bottom: 0.2rem;"> Arlington Parking Occupancy</h1>
+            <p style="margin-top: 0;">Hourly occupancy forecasts powered by a LightGBM model trained on 2025 Arlington city parking data.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    select_col = st.columns([1, 2, 1])[1]
+    with select_col:
+        selected_street = st.selectbox(
+            "Street",
+            streets,
+            index=0,
+            placeholder="Search for a street...",
+            label_visibility="collapsed",
+        )
