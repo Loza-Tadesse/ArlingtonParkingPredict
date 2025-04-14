@@ -165,3 +165,12 @@ def main() -> None:
             placeholder="Search for a street...",
             label_visibility="collapsed",
         )
+
+    month_numbers = [int(month) for month in months_available]
+
+    heatmap = _predict_heatmap(booster, selected_street, month_numbers, street_categories)
+
+    hour_labels = [_format_hour_label(hour) for hour in HOURS]
+
+    st.subheader("Predicted Hourly Occupancy")
+    _render_heatmap(heatmap, hour_labels)
