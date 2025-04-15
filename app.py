@@ -174,3 +174,11 @@ def main() -> None:
 
     st.subheader("Predicted Hourly Occupancy")
     _render_heatmap(heatmap, hour_labels)
+
+    st.markdown("### Prediction Table")
+    prediction_table = pd.DataFrame(heatmap, index=_day_labels(), columns=hour_labels)
+    st.dataframe(prediction_table, use_container_width=True)
+
+
+if __name__ == "__main__":
+    main()
