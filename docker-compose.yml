@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  web-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "8501:8501"
+    environment:
+      - HOTSPOT_CONFIG=${HOTSPOT_CONFIG:-/app/config.yaml}
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./config.yaml:/app/config.yaml:ro
+    command: streamlit run app.py --server.address=0.0.0.0 --server.port=8501
+    restart: unless-stopped
