@@ -1,0 +1,23 @@
+{
+  "raw_files": [
+    "parking_transactions_2025-07.csv",
+    "parking_transactions_2025-08.csv",
+    "parking_transactions_2025-09.csv",
+    "parking_transactions_2025-10.csv"
+  ],
+  "rows": 155281,
+  "feature_columns": [
+    "street",
+    "day_of_week",
+    "hour_of_day",
+    "month",
+    "is_weekend",
+    "hour_sin",
+    "hour_cos"
+  ],
+  "target_column": "occupancy",
+  "train_rows": 108692,
+  "val_rows": 23296,
+  "test_rows": 23293,
+  "created_at": "2025-10-25T10:49:09.300774+00:00"
+}
