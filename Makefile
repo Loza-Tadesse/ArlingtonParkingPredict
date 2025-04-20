@@ -1,5 +1,9 @@
 .PHONY: help install install-dev setup run train test clean lint format
 
+DEFAULT_VENV := .venv
+ALT_VENV := venv
+VENV_DIR := $(if $(wildcard $(DEFAULT_VENV)),$(DEFAULT_VENV),$(if $(wildcard $(ALT_VENV)),$(ALT_VENV),$(DEFAULT_VENV)))
+
 help:
 	@echo "🔥 ArlingtonParkingPredict - Available Commands"
 	@echo "==========================================="
@@ -23,13 +27,13 @@ help:
 # First-time setup
 setup:
 	@echo "🚀 Setting up ArlingtonParkingPredict..."
-	@test -d venv || python3 -m venv venv
+	@test -d $(VENV_DIR) || python3 -m venv $(VENV_DIR)
 	@echo "📦 Installing dependencies..."
-	@. venv/bin/activate && pip install --upgrade pip
-	@. venv/bin/activate && pip install -r requirements.txt
-	@. venv/bin/activate && pip install -r requirements-ui.txt
+	@. $(VENV_DIR)/bin/activate && pip install --upgrade pip
+	@. $(VENV_DIR)/bin/activate && pip install -r requirements.txt
+	@. $(VENV_DIR)/bin/activate && pip install -r requirements-ui.txt
 	@if [ -f requirements-api.txt ]; then \
-		. venv/bin/activate && pip install -r requirements-api.txt; \
+		. $(VENV_DIR)/bin/activate && pip install -r requirements-api.txt; \
 	fi
 	@if [ ! -f .env ]; then \
 		cp .env.example .env; \
@@ -39,46 +43,48 @@ setup:
 
 # Install core dependencies only
 install:
-	@. venv/bin/activate && pip install -r requirements.txt
+	@. $(VENV_DIR)/bin/activate && pip install -r requirements.txt
 
 # Install all dependencies (core + UI + API)
 install-dev:
-	@. venv/bin/activate && pip install -r requirements.txt
-	@. venv/bin/activate && pip install -r requirements-ui.txt
+	@. $(VENV_DIR)/bin/activate && pip install -r requirements.txt
+	@. $(VENV_DIR)/bin/activate && pip install -r requirements-ui.txt
 	@if [ -f requirements-api.txt ]; then \
-		. venv/bin/activate && pip install -r requirements-api.txt; \
+		. $(VENV_DIR)/bin/activate && pip install -r requirements-api.txt; \
 	fi
 
 # Run Streamlit Web UI
 run:
 	@echo "🎨 Launching Streamlit Web UI..."
-	@. venv/bin/activate && streamlit run app.py
+	@if [ ! -d "$(VENV_DIR)" ]; then echo "Virtual environment not found at $(VENV_DIR). Run 'make setup' first."; exit 1; fi
+	@$(VENV_DIR)/bin/python -m streamlit run app.py
 
 # Run training pipeline
 train:
 	@echo "�️  Executing training pipeline..."
-	@. venv/bin/activate && python scripts/train_occupancy_model.py
+	@if [ ! -d "$(VENV_DIR)" ]; then echo "Virtual environment not found at $(VENV_DIR). Run 'make setup' first."; exit 1; fi
+	@$(VENV_DIR)/bin/python scripts/train_occupancy_model.py
 
 # Lint code
 lint:
 	@echo "🔍 Checking code quality..."
-	@. venv/bin/activate && pip install -q flake8 pylint 2>/dev/null || true
-	@. venv/bin/activate && flake8 src/ --max-line-length=100 --ignore=E501,W503 || true
+	@. $(VENV_DIR)/bin/activate && pip install -q flake8 pylint 2>/dev/null || true
+	@. $(VENV_DIR)/bin/activate && flake8 src/ --max-line-length=100 --ignore=E501,W503 || true
 	@echo "✅ Lint check complete"
 
 # Format code
 format:
 	@echo "✨ Formatting code..."
-	@. venv/bin/activate && pip install -q black isort 2>/dev/null || true
-	@. venv/bin/activate && black src/ app.py scripts/train_occupancy_model.py || true
-	@. venv/bin/activate && isort src/ app.py scripts/train_occupancy_model.py || true
+	@. $(VENV_DIR)/bin/activate && pip install -q black isort 2>/dev/null || true
+	@. $(VENV_DIR)/bin/activate && black src/ app.py scripts/train_occupancy_model.py || true
+	@. $(VENV_DIR)/bin/activate && isort src/ app.py scripts/train_occupancy_model.py || true
 	@echo "✅ Code formatted"
 
 # Run tests
 test:
 	@echo "🧪 Running tests..."
-	@. venv/bin/activate && pip install -q pytest 2>/dev/null || true
-	@. venv/bin/activate && pytest tests/ -v || echo "⚠️  No tests found"
+	@. $(VENV_DIR)/bin/activate && pip install -q pytest 2>/dev/null || true
+	@. $(VENV_DIR)/bin/activate && pytest tests/ -v || echo "⚠️  No tests found"
 
 # Clean generated files
 clean:
