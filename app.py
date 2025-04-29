@@ -68,7 +68,8 @@ def _load_model(model_path: Path) -> lgb.Booster:
     try:
         return lgb.Booster(model_file=str(model_path))
     except LightGBMError as exc:
-        st.exception(f"Failed to load LightGBM booster from {model_path}: {exc}")
+        st.error(f"Failed to load LightGBM booster from {model_path}: {exc}")
+        st.exception(exc)
         st.stop()
 
 
