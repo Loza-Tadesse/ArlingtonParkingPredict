@@ -12,6 +12,8 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from lightgbm.basic import LightGBMError
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 SRC_DIR = PROJECT_ROOT / "src"
@@ -58,13 +60,16 @@ def _load_hourly_frame(hourly_path: Path) -> pd.DataFrame:
     frame["street"] = frame["street"].astype(str).str.strip()
     return frame
 
-
 @st.cache_resource(show_spinner=False)
 def _load_model(model_path: Path) -> lgb.Booster:
     if not model_path.exists():
         st.error(f"LightGBM model not found at {model_path}. Train the model before launching the app.")
         st.stop()
-    return lgb.Booster(model_file=str(model_path))
+    try:
+        return lgb.Booster(model_file=str(model_path))
+    except LightGBMError as exc:
+        st.exception(f"Failed to load LightGBM booster from {model_path}: {exc}")
+        st.stop()
 
 
 def _day_labels() -> List[str]:
