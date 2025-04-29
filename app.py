@@ -66,7 +66,10 @@ def _load_model(model_path: Path) -> lgb.Booster:
         st.error(f"LightGBM model not found at {model_path}. Train the model before launching the app.")
         st.stop()
     try:
-        return lgb.Booster(model_file=str(model_path))
+        model_bytes = model_path.read_bytes()
+        # LightGBM expects str, but safely decode since model is ASCII.
+        booster = lgb.Booster(model_str=model_bytes.decode("utf-8"))
+        return booster
     except LightGBMError as exc:
         st.error(f"Failed to load LightGBM booster from {model_path}: {exc}")
         st.exception(exc)
